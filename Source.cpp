@@ -30,7 +30,7 @@ public:
 	void preorderTraversal(); //Traverses the tree by the preorder method, using less-than-root values as 'left' and greater-than-root values as 'right'
 	void preorderTraversal(int x); //Traveres by preorder, with the root included as a parameter 
 	void levelOrderTraversal(); //Traverses the tree by level
-	void createFromParentArray(int& parentArray, int n);
+	void createFromParentArray(int* parentArray, int n);
 };
 
 ///Overloaded ostream operator
@@ -248,22 +248,32 @@ void ParentMultiTree<DT>::levelOrderTraversal() {
 }
 
 template<class DT>
-void ParentMultiTree<DT>::createFromParentArray(int & inputArray, int n) {
+void ParentMultiTree<DT>::createFromParentArray(int* inputArray, int n) {
 	numNodes = n;
-	ParentArray = int[n];
-	ChildPositionArray = int[n];
+	ParentArray = new DT[n];
+	ChildPositionArray = new DT[n];
+	//Initialize all the child positions to -1
 	for (int i = 0; i < n; i++) {
 		ChildPositionArray[i] = -1;
 	}
-	//IDK what's happening here. Want to make the childposition array given the parent array
+	//Copy the input array to the parent array
 	for (int i = 0; i < n; i++) {
 		ParentArray[i] = inputArray[i];
-		if (ChildPositionArray[ParentArray[i]] == j) {
-
+		//for each child of a node i
+		//add them at the index
+		//increment the index
+	}
+	for (int j = 0; j < n; j++) {
+		//If the child position hasn't been set yet
+		if (ChildPositionArray[j] != -1) {
+			int parent = ParentArray[j];
+			int* children = getChildren(parent);
+			int numChildren = getNumChildren(parent);
+			for (int k = 0; k < numChildren; k++) {
+				ChildPositionArray[children[k]] = k;
+			}
 		}
 	}
-	
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -328,7 +338,7 @@ ParentMultiTree<DT> GraphAdjList<DT>::dfs(int x) {
 	_dfs(x);
 //	Use the parent array to create a parentmultiarray object from x
 	ParentMultiTree<DT>* pmt = new ParentMultiTree<DT>();
-	pmt->createFromParentArray(int& parent, n);
+	pmt->createFromParentArray(parent, n);
 	//return parentArray;
 	return *pmt;
 }
@@ -346,7 +356,6 @@ void GraphAdjList<DT>::_dfs(int x){
 			_dfs(*iterator);
 		}
 	}
-//	return ParentMultiTree<DT>();
 }
 
 template<class DT>
@@ -406,7 +415,7 @@ int main() {
 		line++;
 	}
 	cout << *graphAdjList;
-	graphAdjList->dfs(1);
+	ParentMultiTree<int> pmt = graphAdjList->dfs(1);
+	cout << pmt;
 	return 0;
 }
-
