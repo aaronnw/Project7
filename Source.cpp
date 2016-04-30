@@ -3,9 +3,9 @@
 using namespace std;
 
 template <class DT>
-class ParentBinaryTree {
+class ParentMultiTree {
 	template<class T>
-	friend ostream& operator<< (ostream& s, ParentBinaryTree<T>& pbt); //Overloaded ostream operator
+	friend ostream& operator<< (ostream& s, ParentMultiTree<T>& pmt); //Overloaded ostream operator
 protected:
 
 	DT* ParentArray; //Array indexed by each position with a value for each position's parent
@@ -14,11 +14,11 @@ protected:
 	bool firstRoot = true;
 
 public:
-	ParentBinaryTree(); //Default constructor
-	ParentBinaryTree(int size); //Initializer
-	~ParentBinaryTree(); //Destructor
-	ParentBinaryTree(ParentBinaryTree& pbt); //Copy constructor
-	void operator=(ParentBinaryTree<DT>& pbt); //Overloaded assignment operator
+	ParentMultiTree(); //Default constructor
+	ParentMultiTree(int size); //Initializer
+	~ParentMultiTree(); //Destructor
+	ParentMultiTree(ParentMultiTree& pmt); //Copy constructor
+	void operator=(ParentMultiTree<DT>& pmt); //Overloaded assignment operator
 	void insert(DT & root, DT* childArray, int numChildren); //Inserts the values to create the tree
 	int getSize(); //Returns the number of nodes in the tree
 	int getHeight(); //Returns the height of the tree
@@ -30,11 +30,12 @@ public:
 	void preorderTraversal(); //Traverses the tree by the preorder method, using less-than-root values as 'left' and greater-than-root values as 'right'
 	void preorderTraversal(int x); //Traveres by preorder, with the root included as a parameter 
 	void levelOrderTraversal(); //Traverses the tree by level
+	void createFromParentArray(int& parentArray, int n);
 };
 
 ///Overloaded ostream operator
 template<class T>
-ostream& operator<< (ostream& s, ParentBinaryTree<T>& tree) {
+ostream& operator<< (ostream& s, ParentMultiTree<T>& tree) {
 	//Print out the preorder traversal
 	tree.preorderTraversal();
 	s << endl;
@@ -43,51 +44,51 @@ ostream& operator<< (ostream& s, ParentBinaryTree<T>& tree) {
 
 ///Default Constructor
 template<class DT>
-ParentBinaryTree<DT>::ParentBinaryTree() {
+ParentMultiTree<DT>::ParentMultiTree() {
 	DT* ParentArray = NULL;
 	DT* ChildPositionArray = NULL;
 	numNodes = 0;
 }
 ///Initializer
 template<class DT>
-ParentBinaryTree<DT>::ParentBinaryTree(int size) {
+ParentMultiTree<DT>::ParentMultiTree(int size) {
 	ParentArray = new DT[size];
 	ChildPositionArray = new int[size];
 	numNodes = size;
 }
 ///Destructor
 template<class DT>
-ParentBinaryTree<DT>::~ParentBinaryTree() {
+ParentMultiTree<DT>::~ParentMultiTree() {
 
 }
 ///Copy constructor
 template<class DT>
-ParentBinaryTree<DT>::ParentBinaryTree(ParentBinaryTree<DT> & pbt) {
-	numNodes = pbt.numNodes;
+ParentMultiTree<DT>::ParentMultiTree(ParentMultiTree<DT> & pmt) {
+	numNodes = pmt.numNodes;
 	ParentArray = new DT[numNodes];
 	ChildPositionArray = new int[numNodes];
 	//Copy the parent array and the child position array
-	for (int i = 0; i < pbt.getSize(); i++) {
-		ParentArray[i] = pbt.ParentArray[i];
-		ChildPositionArray[i] = pbt.ChildPositionArray[i];
+	for (int i = 0; i < pmt.getSize(); i++) {
+		ParentArray[i] = pmt.ParentArray[i];
+		ChildPositionArray[i] = pmt.ChildPositionArray[i];
 	}
 
 }
 ///Overloaded assignment operator
 template<class DT>
-void ParentBinaryTree<DT>::operator=(ParentBinaryTree<DT>& pbt) {
-	numNodes = pbt.numNodes;
+void ParentMultiTree<DT>::operator=(ParentMultiTree<DT>& pmt) {
+	numNodes = pmt.numNodes;
 	ParentArray = new DT[numNodes];
 	ChildPositionArray = new int[numNodes];
 	//Copy the parent array and the child position array
-	for (int i = 0; i < pbt.getSize(); i++) {
-		ParentArray[i] = pbt.ParentArray[i];
-		ChildPositionArray[i] = pbt.ChildPositionArray[i];
+	for (int i = 0; i < pmt.getSize(); i++) {
+		ParentArray[i] = pmt.ParentArray[i];
+		ChildPositionArray[i] = pmt.ChildPositionArray[i];
 	}
 }
 //Inserts values into the tree
 template<class DT>
-void ParentBinaryTree<DT>::insert(DT & root, DT* childArray, int numChildren) {
+void ParentMultiTree<DT>::insert(DT & root, DT* childArray, int numChildren) {
 	//Only for the highest level node
 	if (firstRoot) {
 		ParentArray[root] = -1;
@@ -102,12 +103,12 @@ void ParentBinaryTree<DT>::insert(DT & root, DT* childArray, int numChildren) {
 }
 //Returns number of nodes in the tree
 template<class DT>
-int ParentBinaryTree<DT>::getSize() {
+int ParentMultiTree<DT>::getSize() {
 	return numNodes;
 }
 //Returns the height of the tree
 template<class DT>
-int ParentBinaryTree<DT>::getHeight() {
+int ParentMultiTree<DT>::getHeight() {
 	int maxHeight = 1;
 	int height = 1;
 	//Loop through all the nodes
@@ -127,7 +128,7 @@ int ParentBinaryTree<DT>::getHeight() {
 }
 //Returns the height of a single node
 template<class DT>
-int ParentBinaryTree<DT>::getNodeHeight(int x) {
+int ParentMultiTree<DT>::getNodeHeight(int x) {
 	int height = 1;
 	int k = x;
 	//Bubble up to the parent, counting levels
@@ -139,7 +140,7 @@ int ParentBinaryTree<DT>::getNodeHeight(int x) {
 }
 //Returns an array of all of the children of a node
 template<class DT>
-int* ParentBinaryTree<DT>::getChildren(int parent) {
+int* ParentMultiTree<DT>::getChildren(int parent) {
 	//If the node has no children return a special value
 	if (!isLeaf(parent)) {
 		int numChildren = getNumChildren(parent);
@@ -162,7 +163,7 @@ int* ParentBinaryTree<DT>::getChildren(int parent) {
 }
 //Returns the number of children of a node
 template<class DT>
-int ParentBinaryTree<DT>::getNumChildren(int parent) {
+int ParentMultiTree<DT>::getNumChildren(int parent) {
 	int count = 0;
 	//Iterate through all the nodes and count the children of the given parent
 	for (int i = 0; i < numNodes; i++) {
@@ -174,7 +175,7 @@ int ParentBinaryTree<DT>::getNumChildren(int parent) {
 }
 //Returns the top root of the tree
 template<class DT>
-int ParentBinaryTree<DT>::getTopRoot() {
+int ParentMultiTree<DT>::getTopRoot() {
 	//Checks all the nodes to see if they have a parent of -1
 	int root = 0;
 	while (ParentArray[root] != -1 && root < numNodes) {
@@ -184,7 +185,7 @@ int ParentBinaryTree<DT>::getTopRoot() {
 }
 //Returns a boolean true if the position is a leaf node
 template<class DT>
-bool ParentBinaryTree<DT>::isLeaf(int x) {
+bool ParentMultiTree<DT>::isLeaf(int x) {
 	//Check if the position has children
 	if (getNumChildren(x) == 0) {
 		return true;
@@ -195,7 +196,7 @@ bool ParentBinaryTree<DT>::isLeaf(int x) {
 }
 //Prints the node values in preorder format
 template<class DT>
-void ParentBinaryTree<DT>::preorderTraversal(int x) {
+void ParentMultiTree<DT>::preorderTraversal(int x) {
 	//Root, left, right
 	cout << x << " ";
 	int* children = getChildren(x);
@@ -214,7 +215,7 @@ void ParentBinaryTree<DT>::preorderTraversal(int x) {
 }
 //Finds the root node then prints the node values in preorder format
 template<class DT>
-void ParentBinaryTree<DT>::preorderTraversal() {
+void ParentMultiTree<DT>::preorderTraversal() {
 	//Root, left, right
 	//Find root node
 	int root = getTopRoot();
@@ -223,7 +224,7 @@ void ParentBinaryTree<DT>::preorderTraversal() {
 }
 //Prints the tree, level by level
 template<class DT>
-void ParentBinaryTree<DT>::levelOrderTraversal() {
+void ParentMultiTree<DT>::levelOrderTraversal() {
 	queue<int> q;
 	int numLevels = getHeight();
 	int x = 0;
@@ -245,28 +246,55 @@ void ParentBinaryTree<DT>::levelOrderTraversal() {
 		cout << endl;
 	}
 }
-template	<class	DT>
-class	GraphAdjList {
+
+template<class DT>
+void ParentMultiTree<DT>::createFromParentArray(int & inputArray, int n) {
+	numNodes = n;
+	ParentArray = int[n];
+	ChildPositionArray = int[n];
+	for (int i = 0; i < n; i++) {
+		ChildPositionArray[i] = -1;
+	}
+	//IDK what's happening here. Want to make the childposition array given the parent array
+	for (int i = 0; i < n; i++) {
+		ParentArray[i] = inputArray[i];
+		if (ChildPositionArray[ParentArray[i]] == j) {
+
+		}
+	}
+	
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////
+template<class DT>
+class GraphAdjList {
 
 	template<class T>
 	friend ostream& operator<< (ostream& s, GraphAdjList<T>& l); //Overloaded ostream operator
+
 protected:
 	list<DT>* adjList;
 	int	n;	//	Number	of	nodes
 	int m; //	Number	of	edges
+	int* visited;
+	int* parent;
 public:
 	GraphAdjList();
 	GraphAdjList(int n, int m);
 	~GraphAdjList();
 	void addEdge(int x, int y);
-	ParentBinaryTree<DT> dfs(int x);
-	ParentBinaryTree<DT> bfs(int x);
+	ParentMultiTree<DT> dfs(int x);
+	void _dfs(int x);
+	ParentMultiTree<DT> bfs(int x);
 
 };
 template<class DT>
 GraphAdjList<DT>::GraphAdjList() {
 	n = 0;
 	m = 0;
+	visited = nullptr;
+	parent = nullptr;
 	adjList = new list<DT>[n];
 }
 
@@ -274,6 +302,8 @@ template<class DT>
 GraphAdjList<DT>::GraphAdjList(int numNodes, int numEdges) {
 	n = numNodes;
 	m = numEdges;
+	visited = new int[numNodes];
+	parent = new int[numNodes];
 	adjList = new list<DT>[n];
 }
 
@@ -288,31 +318,39 @@ void GraphAdjList<DT>::addEdge(int x, int y) {
 }
 
 template<class DT>
-ParentBinaryTree<DT> GraphAdjList<DT>::dfs(int x) {
-	/*
-	for(int i = 0; i < n ; i ++}{
-     visited[i] = false;     
-     parent[i] = -1;
-}
-     _DFS(x);
-     return parentArray;
-}
-
-void _DFS(int x){
-visited[x] = True;
-for each neighbor y of x{
-if !visited[y]{
-     parent[y] = x;
-     _DFS(y);
-}
-}
-
-	*/
-	return ParentBinaryTree<DT>();
+ParentMultiTree<DT> GraphAdjList<DT>::dfs(int x) {
+	//Initialize the array values 
+	for(int i = 0; i < n ; i ++){
+		visited[i] = 0;
+		parent[i] = -1;
+	}
+	//Call the recursive function
+	_dfs(x);
+//	Use the parent array to create a parentmultiarray object from x
+	ParentMultiTree<DT>* pmt = new ParentMultiTree<DT>();
+	pmt->createFromParentArray(int& parent, n);
+	//return parentArray;
+	return *pmt;
 }
 
 template<class DT>
-ParentBinaryTree<DT> GraphAdjList<DT>::bfs(int x) {
+void GraphAdjList<DT>::_dfs(int x){
+	visited[x] = true;
+	//For each neighbor y of x
+	for (list<int>::const_iterator iterator = adjList[x].begin(), end = adjList[x].end(); iterator != end; ++iterator) {
+		//If that neighbor has not been visited yet
+		if (visited[*iterator] == 0){
+			//Make the parent x and the child y
+			parent[*iterator] = x;
+			//Call DFS on that neighbor
+			_dfs(*iterator);
+		}
+	}
+//	return ParentMultiTree<DT>();
+}
+
+template<class DT>
+ParentMultiTree<DT> GraphAdjList<DT>::bfs(int x) {
 	/*
 	for(int i = 0; i < n; i ++){
 visited[i] = false;
@@ -332,7 +370,7 @@ parent[y] = x;
 
 	*/
 
-	return ParentBinaryTree<DT>();
+	return ParentMultiTree<DT>();
 }
 ///Overloaded ostream operator
 template<class T>
@@ -368,6 +406,7 @@ int main() {
 		line++;
 	}
 	cout << *graphAdjList;
+	graphAdjList->dfs(1);
 	return 0;
 }
 
