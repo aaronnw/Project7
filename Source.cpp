@@ -1,5 +1,7 @@
 #include <iostream>
 #include <list>
+#include <queue>
+
 using namespace std;
 
 template <class DT>
@@ -30,7 +32,8 @@ public:
 	void preorderTraversal(); //Traverses the tree by the preorder method, using less-than-root values as 'left' and greater-than-root values as 'right'
 	void preorderTraversal(int x); //Traveres by preorder, with the root included as a parameter 
 	void levelOrderTraversal(); //Traverses the tree by level
-	void createFromParentArray(int* parentArray, int n);
+	void createFromParentArray(int* parentArray, int n); //Create a tree from only a parent array and length, putting smaller values as left children
+	void printArrays(); //Print the parent array and child position arrays
 };
 
 ///Overloaded ostream operator
@@ -265,7 +268,7 @@ void ParentMultiTree<DT>::createFromParentArray(int* inputArray, int n) {
 	}
 	for (int j = 0; j < n; j++) {
 		//If the child position hasn't been set yet
-		if (ChildPositionArray[j] != -1) {
+		if (ChildPositionArray[j] == -1) {
 			int parent = ParentArray[j];
 			int* children = getChildren(parent);
 			int numChildren = getNumChildren(parent);
@@ -274,6 +277,19 @@ void ParentMultiTree<DT>::createFromParentArray(int* inputArray, int n) {
 			}
 		}
 	}
+}
+
+template<class DT>
+void ParentMultiTree<DT>::printArrays() {
+	for (int i = 0; i < numNodes; i++) {
+		cout << ParentArray[i] << ' ';
+	}
+	cout << endl;
+	for (int i = 0; i < numNodes; i++) {
+		cout << ChildPositionArray[i] << ' ';
+	}
+	cout << endl;
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -285,20 +301,21 @@ class GraphAdjList {
 
 protected:
 	list<DT>* adjList;
-	int	n;	//	Number	of	nodes
-	int m; //	Number	of	edges
-	int* visited;
-	int* parent;
+	int	n; //Number of nodes
+	int m; //Number of edges
+	int* visited; //Array storing which nodes have been visited
+	int* parent; //Array storing the parents of each node
 public:
-	GraphAdjList();
-	GraphAdjList(int n, int m);
-	~GraphAdjList();
-	void addEdge(int x, int y);
-	ParentMultiTree<DT> dfs(int x);
-	void _dfs(int x);
-	ParentMultiTree<DT> bfs(int x);
+	GraphAdjList(); //Default constructor
+	GraphAdjList(int n, int m); //Initializer
+	~GraphAdjList(); //Destructor
+	void addEdge(int x, int y); //Adds an edge the the graph adjacency list
+	ParentMultiTree<DT> dfs(int x); //Returns a tree from the depth-first search starting at the given value
+	void _dfs(int x); //Recursive method to set the array values
+	ParentMultiTree<DT> bfs(int x); //Returns a tree from the breadth-first search starting at the given value
 
 };
+///Default constructor
 template<class DT>
 GraphAdjList<DT>::GraphAdjList() {
 	n = 0;
@@ -307,7 +324,7 @@ GraphAdjList<DT>::GraphAdjList() {
 	parent = nullptr;
 	adjList = new list<DT>[n];
 }
-
+///Initializer
 template<class DT>
 GraphAdjList<DT>::GraphAdjList(int numNodes, int numEdges) {
 	n = numNodes;
@@ -316,17 +333,17 @@ GraphAdjList<DT>::GraphAdjList(int numNodes, int numEdges) {
 	parent = new int[numNodes];
 	adjList = new list<DT>[n];
 }
-
+///Destructor
 template<class DT>
 GraphAdjList<DT>::~GraphAdjList() {
 }
-
+//Adds an edge the the graph adjacency list
 template<class DT>
 void GraphAdjList<DT>::addEdge(int x, int y) {
 	adjList[x].push_back(y);
 	adjList[y].push_back(x);
 }
-
+//Returns a tree from the depth-first search starting at the given value
 template<class DT>
 ParentMultiTree<DT> GraphAdjList<DT>::dfs(int x) {
 	//Initialize the array values 
@@ -336,13 +353,12 @@ ParentMultiTree<DT> GraphAdjList<DT>::dfs(int x) {
 	}
 	//Call the recursive function
 	_dfs(x);
-//	Use the parent array to create a parentmultiarray object from x
-	ParentMultiTree<DT>* pmt = new ParentMultiTree<DT>();
-	pmt->createFromParentArray(parent, n);
-	//return parentArray;
-	return *pmt;
+	//Use the parent array to create a parentmultiarray object from x
+	ParentMultiTree<DT>* dfsPMT = new ParentMultiTree<DT>();
+	dfsPMT->createFromParentArray(parent, n);
+	return *dfsPMT;
 }
-
+//Recursive method to set the array values
 template<class DT>
 void GraphAdjList<DT>::_dfs(int x){
 	visited[x] = true;
@@ -357,29 +373,37 @@ void GraphAdjList<DT>::_dfs(int x){
 		}
 	}
 }
-
+//Returns a tree from the breadth-first search starting at the given value
 template<class DT>
 ParentMultiTree<DT> GraphAdjList<DT>::bfs(int x) {
-	/*
+	queue<int>* q = new queue<int>();
+	//Initialize the arrays
 	for(int i = 0; i < n; i ++){
-visited[i] = false;
-parent[i] = -1;
-}
-visited[x] = true;
-q.push(x);
-while(!q.empty()){
-x = q.front();
-q.pop();
-for each y neighbor of x{
-visited[y] = true;
-q.push(y);
-parent[y] = x;
-}
-}
-
-	*/
-
-	return ParentMultiTree<DT>();
+		visited[i] = 0;
+		parent[i] = -1;
+	}
+	//Mark the first array as visited and add it to the queue
+	visited[x] = 1;
+	q->push(x);
+	//Loop while the queue is not empty
+	while(!q->empty()){
+		x = q->front();
+		q->pop();
+		//For each neighbor of x
+		for (list<int>::const_iterator iterator = adjList[x].begin(), end = adjList[x].end(); iterator != end; ++iterator){
+			//Only visit unvisited nodes
+			if (visited[*iterator] == 0) {
+				//Mark as visited and add to the queue
+				visited[*iterator] = 1;
+				q->push(*iterator);
+				parent[*iterator] = x;
+			}
+		}
+	}
+	//Create a parentmultitree object from the parent array
+	ParentMultiTree<DT>* bfsPMT = new ParentMultiTree<DT>();
+	bfsPMT->createFromParentArray(parent, n);
+	return *bfsPMT;
 }
 ///Overloaded ostream operator
 template<class T>
@@ -414,8 +438,16 @@ int main() {
 		graphAdjList->addEdge(x, y);
 		line++;
 	}
-	cout << *graphAdjList;
-	ParentMultiTree<int> pmt = graphAdjList->dfs(1);
-	cout << pmt;
+	//Call the overloaded ostream operator to print the adjacency list representation
+	cout << *graphAdjList << endl;
+	int search = 0;
+	//Prints the tree created by the dfs from the search integer to show that dfs works
+	cout << "Preorder traversal of DFS tree from " << search << endl;
+	ParentMultiTree<int> pmtDFS = graphAdjList->dfs(search);
+	cout << pmtDFS;
+	//Prints the tree created by the bfs from the search integer to show that bfs works
+	cout << "Preorder traversal of BFS tree from " << search << endl;
+	ParentMultiTree<int> pmtBFS = graphAdjList->bfs(search);
+	cout << pmtBFS;
 	return 0;
 }
