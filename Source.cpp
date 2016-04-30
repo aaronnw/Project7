@@ -249,7 +249,7 @@ void ParentMultiTree<DT>::levelOrderTraversal() {
 		cout << endl;
 	}
 }
-
+//Create a tree from only a parent array and length, putting smaller values as left children
 template<class DT>
 void ParentMultiTree<DT>::createFromParentArray(int* inputArray, int n) {
 	numNodes = n;
@@ -278,13 +278,15 @@ void ParentMultiTree<DT>::createFromParentArray(int* inputArray, int n) {
 		}
 	}
 }
-
+//Print the parent array and child position arrays
 template<class DT>
 void ParentMultiTree<DT>::printArrays() {
+	//Print the parent array
 	for (int i = 0; i < numNodes; i++) {
 		cout << ParentArray[i] << ' ';
 	}
 	cout << endl;
+	//Print the child position array
 	for (int i = 0; i < numNodes; i++) {
 		cout << ChildPositionArray[i] << ' ';
 	}
@@ -438,16 +440,25 @@ int main() {
 		graphAdjList->addEdge(x, y);
 		line++;
 	}
+	cout << "Each node followed by the nodes it connects to: " << endl;
 	//Call the overloaded ostream operator to print the adjacency list representation
 	cout << *graphAdjList << endl;
 	int search = 0;
 	//Prints the tree created by the dfs from the search integer to show that dfs works
 	cout << "Preorder traversal of DFS tree from " << search << endl;
 	ParentMultiTree<int> pmtDFS = graphAdjList->dfs(search);
-	cout << pmtDFS;
+	cout << pmtDFS << endl;
+	//Prints the level order traversal of the DFS tree
+	cout << "Level-order traversal of DFS tree from " << search << endl;
+	pmtDFS.levelOrderTraversal();
+	cout << endl;
 	//Prints the tree created by the bfs from the search integer to show that bfs works
 	cout << "Preorder traversal of BFS tree from " << search << endl;
 	ParentMultiTree<int> pmtBFS = graphAdjList->bfs(search);
-	cout << pmtBFS;
+	cout << pmtBFS << endl;
+	//Prints the level order traversal of the BFS tree
+	cout << "Level-order traversal of BFS tree from " << search << endl;
+	pmtBFS.levelOrderTraversal();
+	cout << endl;
 	return 0;
 }
